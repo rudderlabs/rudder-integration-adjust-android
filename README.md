@@ -11,7 +11,7 @@ Rudder is a platform for collecting, storing and routing customer event data to 
 Released under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## Getting Started with Adjust Integration of Android SDK
-1. Add [Adjust](https://www.adjust.com) as a destination and define the ```apiToken``` and ```eventMapping```
+1. Add [Adjust](https://www.adjust.com) as a destination in the [Dashboard](https://app.rudderlabs.com/) and define ```apiToken``` and ```eventMapping```
 
 2. Add these lines to your ```app/build.gradle```
 ```
