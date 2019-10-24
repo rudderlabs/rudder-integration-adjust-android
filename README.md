@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/rudderlabs-bintray/rudder-sdk-android-core/rudder-sdk-android-core/images/download.svg?version=0.5) ](https://bintray.com/rudderlabs-bintray/rudder-sdk-android-core/rudder-sdk-android-core/0.5/link)
+[ ![Download](https://api.bintray.com/packages/rudderlabs-bintray/rudder-sdk-android-core/rudder-integration-adjust-android/images/download.svg?version=0.1) ](https://bintray.com/rudderlabs-bintray/rudder-sdk-android-core/rudder-integration-adjust-android/0.1/link)
 
 # What is Rudder?
 
