@@ -8,8 +8,8 @@ import com.rudderlabs.android.sdk.core.RudderLogger
 
 class MainApplication : Application() {
     companion object {
-        private const val WRITE_KEY = "1R3JbxsqWZlbYjJlBxf0ZNWZOH6"
-        private const val END_POINT_URI = "https://2f0d770f.ngrok.io"
+        private const val WRITE_KEY = "1SEkFBSRyXIUWmPoOpfcHiKEmOR"
+        private const val END_POINT_URI = "https://d018f0e9.ngrok.io"
         lateinit var rudderClient: RudderClient
     }
 

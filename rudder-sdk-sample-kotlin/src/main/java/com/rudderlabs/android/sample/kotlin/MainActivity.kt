@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
 //            textView.text = "Count: "
 //        }
 
-        Handler().postDelayed(this::sendEvents, 2000)
+        Handler().postDelayed(this::sendEvents, 10000)
     }
 
     private fun sendEvents() {
