@@ -7,22 +7,10 @@ import com.rudderlabs.android.sdk.core.RudderMessageBuilder
 import com.rudderlabs.android.sdk.core.TrackPropertyBuilder
 
 class MainActivity : AppCompatActivity() {
-    private var count = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-//        btn.setOnClickListener {
-//            count += 1
-//            textView.text = "Count: $count"
-//        }
-//
-//        rst.setOnClickListener {
-//            count = 0
-//            textView.text = "Count: "
-//        }
-
-        Handler().postDelayed(this::sendEvents, 10000)
+        sendEvents()
     }
 
     private fun sendEvents() {
@@ -48,14 +36,15 @@ class MainActivity : AppCompatActivity() {
                 .setUserId("test_user_id")
         )
 
+        val revenueProperty = TrackPropertyBuilder()
+            .setCategory("test_category")
+            .build()
+        revenueProperty.put("total", 4.99)
+        revenueProperty.put("currency", "USD")
         MainApplication.rudderClient.track(
             RudderMessageBuilder()
                 .setEventName("revenue")
-                .setProperty(
-                    TrackPropertyBuilder()
-                        .setCategory("test_category")
-                        .build()
-                )
+                .setProperty(revenueProperty)
                 .setUserId("test_user_id")
         )
     }

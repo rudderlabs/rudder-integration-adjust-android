@@ -8,8 +8,6 @@ import com.rudderlabs.android.sdk.core.RudderLogger
 
 class MainApplication : Application() {
     companion object {
-        private const val WRITE_KEY = "1SEkFBSRyXIUWmPoOpfcHiKEmOR"
-        private const val END_POINT_URI = "https://d018f0e9.ngrok.io"
         lateinit var rudderClient: RudderClient
     }
 
@@ -17,10 +15,15 @@ class MainApplication : Application() {
         super.onCreate()
         rudderClient = RudderClient.getInstance(
             this,
-            WRITE_KEY,
+            BuildConfig.WRITE_KEY,
             RudderConfig.Builder()
-                .withEndPointUri(END_POINT_URI)
-                .withLogLevel(4)
+                .withEndPointUri(BuildConfig.END_POINT_URL)
+                .withLogLevel(
+                    when (BuildConfig.DEBUG) {
+                        true -> RudderLogger.RudderLogLevel.DEBUG
+                        else -> RudderLogger.RudderLogLevel.ERROR
+                    }
+                )
                 .withFactory(AdjustIntegrationFactory.FACTORY)
                 .build()
         )
