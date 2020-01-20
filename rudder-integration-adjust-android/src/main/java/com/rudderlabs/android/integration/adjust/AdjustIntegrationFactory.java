@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.adjust.sdk.Adjust;
@@ -23,7 +22,6 @@ import com.adjust.sdk.OnEventTrackingFailedListener;
 import com.adjust.sdk.OnEventTrackingSucceededListener;
 import com.adjust.sdk.OnSessionTrackingFailedListener;
 import com.adjust.sdk.OnSessionTrackingSucceededListener;
-import com.rudderlabs.android.sdk.core.MessageType;
 import com.rudderlabs.android.sdk.core.RudderClient;
 import com.rudderlabs.android.sdk.core.RudderConfig;
 import com.rudderlabs.android.sdk.core.RudderIntegration;
@@ -36,10 +34,7 @@ import java.util.Map;
 
 public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> {
     private static final String ADJUST_KEY = "Adjust";
-    private RudderClient client;
-    private final AdjustInstance adjust;
-    private Map<String, String> eventMap = new HashMap<>();
-
+    private static final String ADJUST_TYPE = "type";
     public static Factory FACTORY = new Factory() {
         @Override
         public RudderIntegration<?> create(Object settings, RudderClient client, RudderConfig rudderConfig) {
@@ -52,8 +47,10 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
     };
 
+    private final AdjustInstance adjust;
+    private Map<String, String> eventMap = new HashMap<>();
+
     private AdjustIntegrationFactory(Object config, RudderClient client, RudderConfig rudderConfig) {
-        this.client = client;
         this.adjust = Adjust.getDefaultInstance();
         String apiToken = "";
         Map<String, Object> destinationConfig = (Map<String, Object>) config;
@@ -164,61 +161,39 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
     }
 
     private void processRudderEvent(RudderMessage element) {
-        if (element != null && element.getType() != null) {
-            switch (element.getType()) {
-                case MessageType.TRACK:
-                    // check pre-defined event map and find out the token for event
-                    String eventToken = null;
-                    if (eventMap.containsKey(element.getEventName())) {
-                        eventToken = eventMap.get(element.getEventName());
-                    }
-                    // if event is not tracked using Adjust (eventToken from Adjust is null)
-                    if (eventToken == null) {
-                        break;
-                    }
+        String eventToken = null;
+        if (eventMap.containsKey(element.getEventName())) {
+            eventToken = eventMap.get(element.getEventName());
+        }
+        if (eventToken == null) return;
 
-                    AdjustEvent event = new AdjustEvent(eventToken);
-                    Map<String, Object> eventProperties = element.getProperties();
-                    if (eventProperties != null) {
-                        for (String key : eventProperties.keySet()) {
-                            event.addCallbackParameter(key, String.valueOf(eventProperties.get(key)));
-                        }
-                        if (eventProperties.containsKey("total") && eventProperties.containsKey("currency")) {
-                            event.setRevenue(
-                                    Double.parseDouble(String.valueOf(eventProperties.get("total"))),
-                                    String.valueOf(eventProperties.get("currency"))
-                            );
-                        }
-                    }
-                    Map<String, Object> userProperties = element.getUserProperties();
-                    if (userProperties != null) {
-                        for (String key : userProperties.keySet()) {
-                            event.addCallbackParameter(key, String.valueOf(userProperties.get(key)));
-                        }
-                    }
-                    this.adjust.trackEvent(event);
-                    break;
-                case MessageType.IDENTIFY:
+        AdjustEvent event = new AdjustEvent(eventToken);
+        event.addCallbackParameter(ADJUST_TYPE, element.getType());
 
-                    Adjust.addSessionPartnerParameter("anonymous_id", element.getAnonymousId());
-                    if (!TextUtils.isEmpty(element.getUserId())) {
-                        Adjust.addSessionPartnerParameter("user_id", element.getUserId());
-                    }
-                    break;
-                case MessageType.SCREEN:
-                    RudderLogger.logWarn("AdjustIntegrationFactory: MessageType is not supported");
-                    break;
-                default:
-                    RudderLogger.logWarn("AdjustIntegrationFactory: MessageType is not specified");
-                    break;
+        Map<String, Object> eventProperties = element.getProperties();
+        if (eventProperties != null) {
+            for (String key : eventProperties.keySet()) {
+                event.addPartnerParameter(key, String.valueOf(eventProperties.get(key)));
+            }
+            if (eventProperties.containsKey("total") && eventProperties.containsKey("currency")) {
+                event.setRevenue(
+                        Double.parseDouble(String.valueOf(eventProperties.get("total"))),
+                        String.valueOf(eventProperties.get("currency"))
+                );
             }
         }
+        Map<String, Object> userProperties = element.getUserProperties();
+        if (userProperties != null) {
+            for (String key : userProperties.keySet()) {
+                event.addCallbackParameter(key, String.valueOf(userProperties.get(key)));
+            }
+        }
+        this.adjust.trackEvent(event);
     }
 
     @Override
     public void reset() {
-        this.adjust.resetSessionCallbackParameters();
-        this.adjust.resetSessionPartnerParameters();
+        // nothing to do
     }
 
     @Override

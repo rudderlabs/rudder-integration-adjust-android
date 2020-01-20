@@ -33,8 +33,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-//    compileOnly 'com.rudderlabs.android.sdk:rudder-sdk-core:0.1.4'
-    compileOnly project(':rudder-sdk-core')
+    compileOnly 'com.rudderlabs.android.sdk:rudder-sdk-core:0.1.4'
     implementation 'com.adjust.sdk:adjust-android:4.19.1'
 
     testImplementation 'com.android.support.test:rules:1.0.2'
