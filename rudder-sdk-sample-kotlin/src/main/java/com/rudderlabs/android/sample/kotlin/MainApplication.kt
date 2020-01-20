@@ -18,12 +18,7 @@ class MainApplication : Application() {
             BuildConfig.WRITE_KEY,
             RudderConfig.Builder()
                 .withEndPointUri(BuildConfig.END_POINT_URL)
-                .withLogLevel(
-                    when (BuildConfig.DEBUG) {
-                        true -> RudderLogger.RudderLogLevel.DEBUG
-                        else -> RudderLogger.RudderLogLevel.ERROR
-                    }
-                )
+                .withLogLevel(RudderLogger.RudderLogLevel.DEBUG)
                 .withFactory(AdjustIntegrationFactory.FACTORY)
                 .build()
         )
