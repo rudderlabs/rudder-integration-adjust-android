@@ -1,19 +1,19 @@
 ext {
-    bintrayRepo = 'rudder-sdk-android-core'
+    bintrayRepo = 'rudderstack'
     bintrayName = 'rudder-integration-adjust-android'
 
     publishedGroupId = 'com.rudderlabs.android.integration.adjust'
     libraryName = 'RudderAndroidSdkCore'
     artifact = 'rudder-integration-adjust-android'
 
-    libraryDescription = 'Android  SDK for Rudderlabs. Steer your customer data'
+    libraryDescription = 'Android  SDK for Rudderstack. Steer your customer data'
 
     siteUrl = 'https://github.com/rudderlabs/rudder-sdk-android'
     gitUrl = 'https://github.com/rudderlabs/rudder-integration-adjust-android.git'
 
-    libraryVersion = '0.1.1'
+    libraryVersion = '0.1.0'
 
-    developerId = 'arnabp-rudder'
+    developerId = 'arnabp92'
     developerName = 'Arnab Pal'
     developerEmail = 'arnab@rudderlabs.com'
 
