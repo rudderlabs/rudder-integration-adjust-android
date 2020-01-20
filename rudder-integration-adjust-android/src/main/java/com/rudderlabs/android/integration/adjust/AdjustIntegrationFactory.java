@@ -36,7 +36,6 @@ import java.util.Map;
 
 public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> {
     private static final String ADJUST_KEY = "Adjust";
-    private RudderClient client;
     private final AdjustInstance adjust;
     private Map<String, String> eventMap = new HashMap<>();
 
@@ -53,7 +52,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
     };
 
     private AdjustIntegrationFactory(Object config, RudderClient client, RudderConfig rudderConfig) {
-        this.client = client;
         this.adjust = Adjust.getDefaultInstance();
         String apiToken = "";
         Map<String, Object> destinationConfig = (Map<String, Object>) config;
