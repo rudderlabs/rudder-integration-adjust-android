@@ -51,7 +51,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
     };
 
-    private AdjustIntegrationFactory(Object config, RudderClient client, RudderConfig rudderConfig) {
+    private AdjustIntegrationFactory(Object config, final RudderClient client, RudderConfig rudderConfig) {
         this.adjust = Adjust.getDefaultInstance();
         String apiToken = "";
         Map<String, Object> destinationConfig = (Map<String, Object>) config;
@@ -175,15 +175,16 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                         break;
                     }
 
+                    this.setSessionParams(element);
                     AdjustEvent event = new AdjustEvent(eventToken);
                     Map<String, Object> eventProperties = element.getProperties();
                     if (eventProperties != null) {
                         for (String key : eventProperties.keySet()) {
                             event.addCallbackParameter(key, String.valueOf(eventProperties.get(key)));
                         }
-                        if (eventProperties.containsKey("total") && eventProperties.containsKey("currency")) {
+                        if (eventProperties.containsKey("revenue") && eventProperties.containsKey("currency")) {
                             event.setRevenue(
-                                    Double.parseDouble(String.valueOf(eventProperties.get("total"))),
+                                    Double.parseDouble(String.valueOf(eventProperties.get("revenue"))),
                                     String.valueOf(eventProperties.get("currency"))
                             );
                         }
@@ -197,11 +198,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                     this.adjust.trackEvent(event);
                     break;
                 case MessageType.IDENTIFY:
-
-                    Adjust.addSessionPartnerParameter("anonymous_id", element.getAnonymousId());
-                    if (!TextUtils.isEmpty(element.getUserId())) {
-                        Adjust.addSessionPartnerParameter("user_id", element.getUserId());
-                    }
+                    this.setSessionParams(element);
                     break;
                 case MessageType.SCREEN:
                     RudderLogger.logWarn("AdjustIntegrationFactory: MessageType is not supported");
@@ -213,9 +210,15 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
     }
 
+    private void setSessionParams(RudderMessage element) {
+        Adjust.addSessionPartnerParameter("anonymousId", element.getAnonymousId());
+        if (!TextUtils.isEmpty(element.getUserId())) {
+            Adjust.addSessionPartnerParameter("userId", element.getUserId());
+        }
+    }
+
     @Override
     public void reset() {
-        this.adjust.resetSessionCallbackParameters();
         this.adjust.resetSessionPartnerParameters();
     }
 
