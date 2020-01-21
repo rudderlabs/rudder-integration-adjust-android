@@ -55,8 +55,9 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         this.adjust = Adjust.getDefaultInstance();
         String apiToken = "";
         Map<String, Object> destinationConfig = (Map<String, Object>) config;
-        if (destinationConfig != null && destinationConfig.containsKey("appToken"))
+        if (destinationConfig != null && destinationConfig.containsKey("appToken")) {
             apiToken = (String) destinationConfig.get("appToken");
+        }
         if (destinationConfig != null && destinationConfig.containsKey("customMappings")) {
             List<Object> eventList = (List<Object>) destinationConfig.get("customMappings");
             if (eventList != null && !eventList.isEmpty()) {
@@ -68,6 +69,18 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 }
             }
         }
+        double delay = 0;
+        if (destinationConfig != null && destinationConfig.containsKey("delay")) {
+            Double delayTime = (Double) destinationConfig.get("delay");
+            if (delayTime != null) {
+                delay = delayTime;
+            }
+            if (delay < 0) {
+                delay = 0;
+            } else if (delay > 10) {
+                delay = 10;
+            }
+        }
 
         AdjustConfig adjustConfig = new AdjustConfig(
                 client.getApplication(),
@@ -75,6 +88,9 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? AdjustConfig.ENVIRONMENT_SANDBOX : AdjustConfig.ENVIRONMENT_PRODUCTION
         );
         adjustConfig.setLogLevel(rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? LogLevel.VERBOSE : LogLevel.ERROR);
+        if (delay > 0) {
+            adjustConfig.setDelayStart(delay);
+        }
 
         adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
             @Override
