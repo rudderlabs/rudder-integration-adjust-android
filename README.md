@@ -21,6 +21,7 @@ repositories {
 ```
 implementation 'com.rudderstack.android.sdk:core:1.0.1'
 implementation 'com.rudderstack.android.integration:adjust:0.1.0'
+implementation 'com.adjust.sdk:adjust-android:4.19.1'
 ```
 
 ## Initialize ```RudderClient```
