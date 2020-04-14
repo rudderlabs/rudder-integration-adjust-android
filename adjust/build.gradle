@@ -19,7 +19,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 29
         versionCode 1
-        versionName "0.1.1"
+        versionName "0.1.0"
     }
 
     buildTypes {
@@ -30,11 +30,14 @@ android {
     }
 }
 
+repositories {
+    maven { url  "https://dl.bintray.com/rudderstack/rudderstack" }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-    compileOnly 'com.rudderlabs.android.sdk:rudder-sdk-core:0.1.5'
-//    compileOnly project(':rudder-sdk-core')
+    compileOnly 'com.rudderstack.android.sdk:core:1.0.1'
     implementation 'com.adjust.sdk:adjust-android:4.19.1'
 
     testImplementation 'com.android.support.test:rules:1.0.2'

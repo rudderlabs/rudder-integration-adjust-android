@@ -1,4 +1,4 @@
-package com.rudderlabs.android.integration.adjust;
+package com.rudderstack.android.integration.adjust;
 
 import android.app.Activity;
 import android.app.Application;
@@ -23,12 +23,13 @@ import com.adjust.sdk.OnEventTrackingFailedListener;
 import com.adjust.sdk.OnEventTrackingSucceededListener;
 import com.adjust.sdk.OnSessionTrackingFailedListener;
 import com.adjust.sdk.OnSessionTrackingSucceededListener;
-import com.rudderlabs.android.sdk.core.MessageType;
-import com.rudderlabs.android.sdk.core.RudderClient;
-import com.rudderlabs.android.sdk.core.RudderConfig;
-import com.rudderlabs.android.sdk.core.RudderIntegration;
-import com.rudderlabs.android.sdk.core.RudderLogger;
-import com.rudderlabs.android.sdk.core.RudderMessage;
+import com.rudderstack.android.sdk.core.MessageType;
+import com.rudderstack.android.sdk.core.RudderClient;
+import com.rudderstack.android.sdk.core.RudderConfig;
+import com.rudderstack.android.sdk.core.RudderIntegration;
+import com.rudderstack.android.sdk.core.RudderLogger;
+import com.rudderstack.android.sdk.core.RudderMessage;
+
 
 import java.util.HashMap;
 import java.util.List;

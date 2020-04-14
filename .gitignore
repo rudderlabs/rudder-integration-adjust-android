@@ -5,3 +5,6 @@
 .idea/
 local.properties
 /rudder-sdk-core
+.project
+.settings/
+

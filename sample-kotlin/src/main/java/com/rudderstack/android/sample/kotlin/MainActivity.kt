@@ -1,10 +1,9 @@
-package com.rudderlabs.android.sample.kotlin
+package com.rudderstack.android.sample.kotlin
 
 import android.os.Bundle
-import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
-import com.rudderlabs.android.sdk.core.RudderMessageBuilder
-import com.rudderlabs.android.sdk.core.TrackPropertyBuilder
+import com.rudderstack.android.sdk.core.RudderMessageBuilder
+import com.rudderstack.android.sdk.core.TrackPropertyBuilder
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +21,6 @@ class MainActivity : AppCompatActivity() {
                         .setCategory("test_category")
                         .build()
                 )
-                .setUserId("test_user_id")
         )
 
         MainApplication.rudderClient.identify("developer_user_id")
@@ -35,7 +33,6 @@ class MainActivity : AppCompatActivity() {
                         .setCategory("test_category")
                         .build()
                 )
-                .setUserId("test_user_id")
         )
 
         MainApplication.rudderClient.reset()
@@ -49,7 +46,6 @@ class MainActivity : AppCompatActivity() {
             RudderMessageBuilder()
                 .setEventName("revenue")
                 .setProperty(revenueProperty)
-                .setUserId("test_user_id")
         )
     }
 }
