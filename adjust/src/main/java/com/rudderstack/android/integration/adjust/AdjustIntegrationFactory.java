@@ -35,7 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> {
+public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance>
+                                        implements Application.ActivityLifecycleCallbacks{
     private static final String ADJUST_KEY = "Adjust";
     private final AdjustInstance adjust;
     private Map<String, String> eventMap = new HashMap<>();
@@ -51,6 +52,41 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
             return ADJUST_KEY;
         }
     };
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+        Adjust.onResume();
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+        Adjust.onPause();
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+
+    }
 
     private AdjustIntegrationFactory(Object config, final RudderClient client, RudderConfig rudderConfig) {
         this.adjust = Adjust.getDefaultInstance();
@@ -72,7 +108,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
         double delay = 0;
         if (destinationConfig != null && destinationConfig.containsKey("delay")) {
-            Double delayTime = (Double) destinationConfig.get("delay");
+            Double delayTime = Double.parseDouble((String) destinationConfig.get("delay"));
             if (delayTime != null) {
                 delay = delayTime;
             }
@@ -139,43 +175,10 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         adjustConfig.setSendInBackground(true);
         this.adjust.onCreate(adjustConfig);
         if (client.getApplication() != null) {
-            client.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-                @Override
-                public void onActivityCreated(Activity activity, Bundle bundle) {
-
-                }
-
-                @Override
-                public void onActivityStarted(Activity activity) {
-
-                }
-
-                @Override
-                public void onActivityResumed(Activity activity) {
-                    Adjust.onResume();
-                }
-
-                @Override
-                public void onActivityPaused(Activity activity) {
-                    Adjust.onPause();
-                }
-
-                @Override
-                public void onActivityStopped(Activity activity) {
-
-                }
-
-                @Override
-                public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-
-                }
-
-                @Override
-                public void onActivityDestroyed(Activity activity) {
-
-                }
-            });
+            client.getApplication().registerActivityLifecycleCallbacks(this);
         }
+        // Resuming Adjust tracking explicitly as LifecycleCallbacks might not be registered for a new install
+        Adjust.onResume();
     }
 
     private void processRudderEvent(RudderMessage element) {
