@@ -1,16 +1,5 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-    }
-}
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion 29
@@ -30,14 +19,10 @@ android {
     }
 }
 
-repositories {
-    maven { url  "https://dl.bintray.com/rudderstack/rudderstack" }
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-    compileOnly 'com.rudderstack.android.sdk:core:1.0.1'
+    compileOnly 'com.rudderstack.android.sdk:core:1.0.11'
     implementation 'com.adjust.sdk:adjust-android:4.19.1'
 
     testImplementation 'com.android.support.test:rules:1.0.2'
