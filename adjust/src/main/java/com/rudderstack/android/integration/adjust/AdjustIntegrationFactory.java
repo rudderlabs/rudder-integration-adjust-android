@@ -72,14 +72,17 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
         double delay = 0;
         if (destinationConfig != null && destinationConfig.containsKey("delay")) {
-            Double delayTime = (Double) destinationConfig.get("delay");
-            if (delayTime != null) {
-                delay = delayTime;
-            }
-            if (delay < 0) {
-                delay = 0;
-            } else if (delay > 10) {
-                delay = 10;
+            String delayString = (String) destinationConfig.get("delay");
+            if (delayString != null && delayString.length() != 0) {
+                Double delayTime = Double.parseDouble((String) destinationConfig.get("delay"));
+                if (delayTime != null) {
+                    delay = delayTime;
+                }
+                if (delay < 0) {
+                    delay = 0;
+                } else if (delay > 10) {
+                    delay = 10;
+                }
             }
         }
 
