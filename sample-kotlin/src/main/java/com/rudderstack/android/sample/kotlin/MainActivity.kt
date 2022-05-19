@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendEvents() {
-        MainApplication.rudderClient.track(
+        MainApplication.rudderClient!!.track(
             RudderMessageBuilder()
                 .setEventName("daily_rewards_claim")
                 .setProperty(
@@ -23,9 +23,9 @@ class MainActivity : AppCompatActivity() {
                 )
         )
 
-        MainApplication.rudderClient.identify("developer_user_id")
+        MainApplication.rudderClient!!.identify("developer_user_id")
 
-        MainApplication.rudderClient.track(
+        MainApplication.rudderClient!!.track(
             RudderMessageBuilder()
                 .setEventName("level_up")
                 .setProperty(
@@ -35,14 +35,15 @@ class MainActivity : AppCompatActivity() {
                 )
         )
 
-        MainApplication.rudderClient.reset()
+        MainApplication.rudderClient!!.reset()
 
         val revenueProperty = TrackPropertyBuilder()
             .setCategory("test_category")
             .build()
         revenueProperty.put("total", 4.99)
         revenueProperty.put("currency", "USD")
-        MainApplication.rudderClient.track(
+
+        MainApplication.rudderClient!!.track(
             RudderMessageBuilder()
                 .setEventName("revenue")
                 .setProperty(revenueProperty)
