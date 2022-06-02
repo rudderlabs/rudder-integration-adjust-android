@@ -185,7 +185,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                         eventToken = eventMap.get(element.getEventName());
                     }
                     // if event is not tracked using Adjust (eventToken from Adjust is null)
-                    if (eventToken == null) {
+                    if (eventToken == null || eventToken.isEmpty()) {
                         break;
                     }
 
