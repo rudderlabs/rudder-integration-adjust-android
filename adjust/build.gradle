@@ -2,13 +2,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 29
+        minSdkVersion 19
+        targetSdkVersion 30
         versionCode 1
-        versionName "0.1.0"
+        versionName "1.0.1"
     }
 
     buildTypes {
@@ -17,18 +17,27 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.rudderlabs.android.integration.adjust'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-    compileOnly 'com.rudderstack.android.sdk:core:1.0.11'
-    implementation 'com.adjust.sdk:adjust-android:4.19.1'
+    // RudderStack android SDK
+    implementation 'com.rudderstack.android.sdk:core:[1.0,2.0)'
+    // Adjust android SDK
+    implementation 'com.adjust.sdk:adjust-android:4.30.1'
 
     testImplementation 'com.android.support.test:rules:1.0.2'
     testImplementation 'com.android.support.test:runner:1.0.2'
     testImplementation "org.robolectric:robolectric:4.3"
-    testImplementation "androidx.test:core-ktx:1.2.0"
+    testImplementation "androidx.test:core-ktx:1.4.0"
 }
 
-apply from: './maven.gradle'
+ext {
+    PUBLISH_GROUP_ID = 'com.rudderstack.android.integration'
+    PUBLISH_VERSION = '1.0.1'
+    PUBLISH_ARTIFACT_ID = 'adjust'
+}
+
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"

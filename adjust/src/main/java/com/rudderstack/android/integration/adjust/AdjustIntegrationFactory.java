@@ -57,7 +57,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         String apiToken = "";
         Map<String, Object> destinationConfig = (Map<String, Object>) config;
         if (destinationConfig != null && destinationConfig.containsKey("appToken")) {
-            apiToken = (String) destinationConfig.get("appToken");
+            apiToken = destinationConfig.get("appToken").toString();
         }
         if (destinationConfig != null && destinationConfig.containsKey("customMappings")) {
             List<Object> eventList = (List<Object>) destinationConfig.get("customMappings");
@@ -72,10 +72,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
         double delay = 0;
         if (destinationConfig != null && destinationConfig.containsKey("delay")) {
-            Double delayTime = (Double) destinationConfig.get("delay");
-            if (delayTime != null) {
-                delay = delayTime;
-            }
+            delay = getDouble(destinationConfig.get("delay"));
             if (delay < 0) {
                 delay = 0;
             } else if (delay > 10) {
@@ -138,8 +135,8 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         });
         adjustConfig.setSendInBackground(true);
         this.adjust.onCreate(adjustConfig);
-        if (client.getApplication() != null) {
-            client.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+        if (RudderClient.getApplication() != null) {
+            RudderClient.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
                 @Override
                 public void onActivityCreated(Activity activity, Bundle bundle) {
 
@@ -188,7 +185,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                         eventToken = eventMap.get(element.getEventName());
                     }
                     // if event is not tracked using Adjust (eventToken from Adjust is null)
-                    if (eventToken == null) {
+                    if (eventToken == null || eventToken.isEmpty()) {
                         break;
                     }
 
@@ -247,5 +244,23 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
     @Override
     public AdjustInstance getUnderlyingInstance() {
         return adjust;
+    }
+
+    static double getDouble(Object value) {
+        if (value == null) {
+            return 0;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        if (value instanceof String) {
+            try {
+                return Double.parseDouble((String) value);
+            } catch (NumberFormatException ignored) {
+                RudderLogger.logDebug("Unable to convert the value: " + value +
+                        " to Double, using the defaultValue: " + (double) 0);
+            }
+        }
+        return 0;
     }
 }
