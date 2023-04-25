@@ -1,14 +1,12 @@
-
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 30
-        versionCode 1
-        versionName "1.0.1"
+        targetSdkVersion 33
     }
 
     buildTypes {
@@ -23,10 +21,13 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-    // RudderStack android SDK
-    implementation 'com.rudderstack.android.sdk:core:[1.0,2.0)'
+    // RudderStack Android SDK
+    compileOnly 'com.rudderstack.android.sdk:core:[1.7.0, 2.0)'
+    // GSON
+    implementation 'com.google.code.gson:gson:2.10.1'
+
     // Adjust android SDK
-    implementation 'com.adjust.sdk:adjust-android:4.30.1'
+    implementation 'com.adjust.sdk:adjust-android:4.33.3'
 
     testImplementation 'com.android.support.test:rules:1.0.2'
     testImplementation 'com.android.support.test:runner:1.0.2'
@@ -34,10 +35,5 @@ dependencies {
     testImplementation "androidx.test:core-ktx:1.4.0"
 }
 
-ext {
-    PUBLISH_GROUP_ID = 'com.rudderstack.android.integration'
-    PUBLISH_VERSION = '1.0.1'
-    PUBLISH_ARTIFACT_ID = 'adjust'
-}
-
-apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
+apply from: rootProject.file('gradle/mvn-publish.gradle')
+apply from: rootProject.file('gradle/codecov.gradle')

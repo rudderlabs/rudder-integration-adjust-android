@@ -10,18 +10,16 @@ import com.rudderstack.android.sdk.core.RudderLogger
 class MainApplication : Application() {
     companion object {
         lateinit var rudderClient: RudderClient
-        const val WRITE_KEY = ""
-        const val DATA_PLANE_URL = ""
     }
 
     override fun onCreate() {
         super.onCreate()
         rudderClient = RudderClient.getInstance(
             this,
-            WRITE_KEY,
+            BuildConfig.WRITE_KEY,
             RudderConfig.Builder()
-                .withDataPlaneUrl(DATA_PLANE_URL)
-                .withLogLevel(RudderLogger.RudderLogLevel.DEBUG)
+                .withDataPlaneUrl(BuildConfig.DATA_PLANE_URL)
+                .withLogLevel(RudderLogger.RudderLogLevel.VERBOSE)
                 .withFactory(AdjustIntegrationFactory.FACTORY)
                 .build()
         )
