@@ -1,0 +1,18 @@
+{
+  "appToken": "AppTokenAdjust12345",
+  "customMappings": [
+    {
+      "from": "Order Completed",
+      "to": "abc123"
+    },
+    {
+      "from": "Product Purchased",
+      "to": "efg456"
+    }
+  ],
+  "delay": "4",
+  "blacklistedEvents": [],
+  "whitelistedEvents": [],
+  "eventFilteringOption": "disable",
+  "oneTrustCookieCategories": []
+}

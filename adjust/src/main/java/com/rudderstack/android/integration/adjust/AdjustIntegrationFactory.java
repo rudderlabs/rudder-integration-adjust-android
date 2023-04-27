@@ -22,6 +22,7 @@ import com.rudderstack.android.sdk.core.RudderConfig;
 import com.rudderstack.android.sdk.core.RudderIntegration;
 import com.rudderstack.android.sdk.core.RudderLogger;
 import com.rudderstack.android.sdk.core.RudderMessage;
+import androidx.annotation.*;
 
 import java.util.Map;
 
@@ -42,23 +43,14 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
     };
 
-    private AdjustIntegrationFactory(Object config, RudderConfig rudderConfig) {
-        this.adjust = Adjust.getDefaultInstance();
+    @VisibleForTesting
+    AdjustIntegrationFactory(AdjustInstance adjust, Object config) {
+        this.adjust = adjust;
+        this.destinationConfig = createAdjustConfig(config);
+    }
 
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        JsonDeserializer<AdjustDestinationConfig> deserializer =
-                (json, typeOfT, context) -> {
-                    JsonObject jsonObject = json.getAsJsonObject();
-                    String appToken = Utils.getString(jsonObject.get("appToken").getAsString());
-                    JsonArray customMappings =
-                            (JsonArray) (jsonObject.get("customMappings"));
-                    Map<String, String> eventMap = Utils.getMappedRudderEvents(customMappings);
-                    double delay = jsonObject.get("delay").getAsDouble();
-                    return new AdjustDestinationConfig(appToken, eventMap, delay);
-                };
-        gsonBuilder.registerTypeAdapter(AdjustDestinationConfig.class, deserializer);
-        Gson customGson = gsonBuilder.create();
-        this.destinationConfig = customGson.fromJson(customGson.toJson(config), AdjustDestinationConfig.class);
+    private AdjustIntegrationFactory(Object config, RudderConfig rudderConfig) {
+        this(Adjust.getDefaultInstance(), config);
 
         AdjustConfig adjustConfig = new AdjustConfig(
                 RudderClient.getApplication(),
@@ -136,6 +128,24 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
             });
         }
     }
+
+    private AdjustDestinationConfig createAdjustConfig(Object config) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        JsonDeserializer<AdjustDestinationConfig> deserializer =
+                (json, typeOfT, context) -> {
+                    JsonObject jsonObject = json.getAsJsonObject();
+                    String appToken = Utils.getString(jsonObject.get("appToken").getAsString());
+                    JsonArray customMappings =
+                            (JsonArray) (jsonObject.get("customMappings"));
+                    Map<String, String> eventMap = Utils.getMappedRudderEvents(customMappings);
+                    double delay = jsonObject.get("delay").getAsDouble();
+                    return new AdjustDestinationConfig(appToken, eventMap, delay);
+                };
+        gsonBuilder.registerTypeAdapter(AdjustDestinationConfig.class, deserializer);
+        Gson customGson = gsonBuilder.create();
+        return customGson.fromJson(customGson.toJson(config), AdjustDestinationConfig.class);
+    }
+
 
     private void processRudderEvent(RudderMessage element) {
         if (element != null && element.getType() != null) {

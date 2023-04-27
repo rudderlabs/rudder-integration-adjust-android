@@ -1,0 +1,27 @@
+{
+  "type": "identify",
+  "messageId": "172d84b9-a684-4249-8646-0994173555cc",
+  "timestamp": "2021-11-20T15:37:19.753Z",
+  "anonymousId": "bc73bb87-8fb4-4498-97c8-570299a4686d",
+  "userId": "debanjanchatterjee",
+  "context": {
+    "traits": {
+      "email": "some_email@gmail.com",
+      "firstname": "John",
+      "lastname": "Doe",
+      "phone": "1234567890",
+      "birthday":"12122000",
+      "gender":"male",
+      "address":{
+        "city":"Kolkata",
+        "country": "India",
+        "postalcode": "7000029",
+        "state": "WB"
+      }
+    }
+  },
+  "integrations": {
+    "All": true
+  }
+
+}

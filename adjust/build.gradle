@@ -28,12 +28,24 @@ dependencies {
 
     // Adjust android SDK
     implementation 'com.adjust.sdk:adjust-android:4.33.3'
-
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation "com.rudderstack.android.sdk:core:[1.7.0, 2.0)"
+    testImplementation 'com.rudderstack.android.test:testio:0.0.0-SNAPSHOT'
+    testImplementation 'com.rudderstack.android.sdk:core:1.13.0'
     testImplementation 'com.android.support.test:rules:1.0.2'
     testImplementation 'com.android.support.test:runner:1.0.2'
     testImplementation "org.robolectric:robolectric:4.3"
-    testImplementation "androidx.test:core-ktx:1.4.0"
+    testImplementation "androidx.test:core-ktx:1.2.0"
+    testImplementation "org.mockito:mockito-core:3.11.2"
+
+    testImplementation "org.powermock:powermock-core:2.0.9"
+    testImplementation ("org.powermock:powermock-module-junit4:2.0.9"){
+        exclude group: 'org.hamcrest', module: 'hamcrest'
+    }
+    testImplementation "org.skyscreamer:jsonassert:1.5.1"
+
+    testImplementation "org.powermock:powermock-api-mockito2:2.0.9"
+    testImplementation 'org.awaitility:awaitility:4.2.0'
 }
 
 apply from: rootProject.file('gradle/mvn-publish.gradle')
