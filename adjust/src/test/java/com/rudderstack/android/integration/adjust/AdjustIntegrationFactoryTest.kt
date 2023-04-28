@@ -1,43 +1,66 @@
 package com.rudderstack.android.integration.adjust
 
+import com.adjust.sdk.Adjust
+import com.adjust.sdk.AdjustEvent
 import com.adjust.sdk.AdjustInstance
 import com.google.gson.GsonBuilder
 import com.rudderstack.android.sdk.core.RudderMessage
-import junit.framework.TestCase.assertEquals
+import com.rudderstack.android.test.testio.TestMyIO
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.MockitoAnnotations
 import org.powermock.api.mockito.PowerMockito
+import org.powermock.core.classloader.annotations.PrepareForTest
+import org.powermock.modules.junit4.PowerMockRunner
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 
 
+@RunWith(PowerMockRunner::class)
+@PrepareForTest(
+    Adjust::class,
+    AdjustIntegrationFactory::class,
+    AdjustIntegrationFactoryTest::class
+)
 class AdjustIntegrationFactoryTest {
-    var adjustIntegrationFactory : AdjustIntegrationFactory? = null
+    var adjustIntegrationFactory: AdjustIntegrationFactory? = null
 
-    private val TEST_JSON_PATH_MAP = mapOf(
+    private val TEST_IDENTIFY_JSON_PATH_MAP_1 = mapOf(
         "identify_input_1.json" to "identify_output_1.json"
     )
 
     @Mock
-    var adjustIntegration : AdjustInstance? = null
+    var adjustIntegration: AdjustInstance? = null
     val gson = GsonBuilder().create()
+    var closeable: AutoCloseable? = null
+
     @Before
     fun setUp() {
+        closeable = MockitoAnnotations.openMocks(this)
+        PowerMockito.spy(Adjust::class.java)
         val configJson = getJsonFromPath("destinationConfig.json")
             ?: throw Exception("Config json is null")
         val configObject = gson.fromJson(configJson, Map::class.java)
         adjustIntegrationFactory = AdjustIntegrationFactory(adjustIntegration, configObject)
     }
 
+    @After
+    fun destroy() {
+        closeable?.close()
+    }
+
     fun getJsonFromPath(path: String?): String? {
-        val inputStream: InputStream = this.javaClass.classLoader?.getResourceAsStream(path) ?: return null
+        val inputStream: InputStream =
+            this.javaClass.classLoader?.getResourceAsStream(path) ?: return null
         val reader = BufferedReader(InputStreamReader(inputStream))
         val builder = StringBuilder()
         var line: String?
@@ -54,90 +77,82 @@ class AdjustIntegrationFactoryTest {
 
     @Test
     fun assertJsonsAreReadCorrectly() {
-        val firstInput = TEST_JSON_PATH_MAP.keys.toTypedArray()[0]
+        val firstInput = TEST_IDENTIFY_JSON_PATH_MAP_1.keys.toTypedArray()[0]
         MatcherAssert.assertThat(firstInput, Matchers.notNullValue())
-        val inputStream = javaClass.classLoader.getResourceAsStream(firstInput)
+        val inputStream = javaClass.classLoader?.getResourceAsStream(firstInput)
         MatcherAssert.assertThat(inputStream, Matchers.notNullValue())
     }
 
+    private val testMyIO = TestMyIO(javaClass.classLoader)
 
     @Test
     @Throws(java.lang.Exception::class)
-    fun testEvents() {
-        for ((inputJsonPath, outputJsonPath) in TEST_JSON_PATH_MAP) {
+    fun identify() {
+        for ((inputJsonPath, outputJsonPath) in TEST_IDENTIFY_JSON_PATH_MAP_1) {
+            val identifyIdCaptor = ArgumentCaptor.forClass(String::class.java)
 
-//        for ((key, value): Map.Entry<String?, String?> in TEST_JSON_PATH_MAP) {
-            val emailCaptor = ArgumentCaptor.forClass(
-                String::class.java
+            PowerMockito.doNothing().`when`(
+                Adjust::class.java, "addSessionPartnerParameter",
+                Mockito.anyString(), identifyIdCaptor.capture()
             )
-            val firstNameCaptor = ArgumentCaptor.forClass(
-                String::class.java
-            )
-            val lastNameCaptor = ArgumentCaptor.forClass(
-                String::class.java
-            )
-            val phoneCaptor = ArgumentCaptor.forClass(
-                String::class.java
-            )
-            val dateOfBirthCaptor = ArgumentCaptor.forClass(
-                String::class.java
-            )
-            val genderCaptor = ArgumentCaptor.forClass(
-                String::class.java
-            )
-            val cityCaptor = ArgumentCaptor.forClass(
-                String::class.java
-            )
-            val stateCaptor = ArgumentCaptor.forClass(
-                String::class.java
-            )
-            val zipCaptor = ArgumentCaptor.forClass(
-                String::class.java
-            )
-            val countryCaptor = ArgumentCaptor.forClass(
-                String::class.java
-            )
-            PowerMockito.doNothing().`when`<Class<AppEventsLogger>>(
-                AppEventsLogger::class.java, "setUserID",
-                userIdCaptor.capture()
-            ) /*.thenAnswer((Answer<Void>) invocation -> Void.TYPE.newInstance())*/
-            PowerMockito.doNothing().`when`<Class<AppEventsLogger>>(
-                AppEventsLogger::class.java, "setUserData",
-                emailCaptor.capture(),
-                firstNameCaptor.capture(),
-                lastNameCaptor.capture(),
-                phoneCaptor.capture(),
-                dateOfBirthCaptor.capture(),
-                genderCaptor.capture(),
-                cityCaptor.capture(),
-                stateCaptor.capture(),
-                zipCaptor.capture(),
-                countryCaptor.capture()
-            ) /*.thenAnswer((Answer<Void>) invocation -> Void.TYPE.newInstance())*/
+
             testMyIO.test(
-                key,
-                value, RudderMessage::class.java,
-                TestOutput::class.java, Operation<I, O> { input: I? ->
-                    facebookIntegrationFactory.dump(input)
-                    TestOutput(
-                        userIdCaptor.getValue(),
-                        Traits(
-                            emailCaptor.value,
-                            firstNameCaptor.value,
-                            lastNameCaptor.value,
-                            phoneCaptor.value,
-                            dateOfBirthCaptor.value,
-                            genderCaptor.value,
-                            cityCaptor.value,
-                            countryCaptor.value,
-                            zipCaptor.value,
-                            stateCaptor.value
-                        )
-                    )
-                })
+                inputJsonPath, outputJsonPath,
+                RudderMessage::class.java,
+                TestIdentify::class.java
+            ) { input ->
+                adjustIntegrationFactory?.dump(input)
+                TestIdentify(
+                    identifyIdCaptor.allValues
+                )
+            }
         }
     }
 
+    @Test
+    @Throws(java.lang.Exception::class)
+    fun customTrack() {
+        trackTest("customTrack_input_1.json", "customTrack_output_1.json")
+    }
 
+    @Test
+    @Throws(java.lang.Exception::class)
+    fun orderCompletedWithRevenueAndCurrency() {
+        trackTest("orderCompletedTrack_input_2.json", "orderCompletedTrack_output_2.json")
+    }
 
+    @Test
+    @Throws(java.lang.Exception::class)
+    fun orderCompletedWithOnlyRevenue() {
+        trackTest("orderCompletedTrack_input_3.json", "orderCompletedTrack_output_3.json")
+    }
+
+    private fun trackTest(inputJsonPath: String, outputJsonPath: String) {
+        val identifyIdCaptor = ArgumentCaptor.forClass(String::class.java)
+        val adjustEventCaptor = ArgumentCaptor.forClass(AdjustEvent::class.java)
+
+        PowerMockito.doNothing().`when`(
+            Adjust::class.java, "addSessionPartnerParameter",
+            Mockito.anyString(), identifyIdCaptor.capture()
+        )
+
+        PowerMockito.doNothing().`when`(
+            adjustIntegration, "trackEvent",
+            adjustEventCaptor.capture()
+        )
+
+        testMyIO.test(
+            inputJsonPath, outputJsonPath,
+            RudderMessage::class.java,
+            TestTrack::class.java
+        ) { input ->
+            adjustIntegrationFactory?.dump(input)
+            val adjustEvent = adjustEventCaptor.allValues
+            println(adjustEvent)
+            TestTrack(
+                identifyIdCaptor.allValues,
+                adjustEventCaptor.allValues
+            )
+        }
+    }
 }

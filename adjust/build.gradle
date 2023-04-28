@@ -16,6 +16,10 @@ android {
         }
     }
     namespace 'com.rudderlabs.android.integration.adjust'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
+    }
 }
 
 dependencies {

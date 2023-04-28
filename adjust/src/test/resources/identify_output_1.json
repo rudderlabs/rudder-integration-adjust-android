@@ -1,17 +1,6 @@
 {
-  "userId": "debanjanchatterjee",
-  "traits": {
-    "email": "some_email@gmail.com",
-    "firstName": "John",
-    "lastName": "Doe",
-    "phone": "1234567890",
-    "birthday":"12122000",
-    "gender":"male",
-
-    "city":"Kolkata",
-    "country": "India",
-    "postalCode": "7000029",
-    "state": "WB"
-
-  }
+  "identify": [
+    "82bb43ecdb842c72",
+    "Android userId"
+  ]
 }
