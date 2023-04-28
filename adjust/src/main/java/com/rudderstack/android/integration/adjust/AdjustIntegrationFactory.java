@@ -22,13 +22,18 @@ import com.rudderstack.android.sdk.core.RudderConfig;
 import com.rudderstack.android.sdk.core.RudderIntegration;
 import com.rudderstack.android.sdk.core.RudderLogger;
 import com.rudderstack.android.sdk.core.RudderMessage;
+import androidx.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> {
     private static final String ADJUST_KEY = "Adjust";
     private final AdjustInstance adjust;
     private final AdjustDestinationConfig destinationConfig;
+    private final List<String> ECOMMERCE_RESERVED_PROPERTIES = Arrays.asList("revenue", "currency");
+
 
     public static Factory FACTORY = new Factory() {
         @Override
@@ -42,23 +47,14 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
     };
 
-    private AdjustIntegrationFactory(Object config, RudderConfig rudderConfig) {
-        this.adjust = Adjust.getDefaultInstance();
+    @VisibleForTesting
+    AdjustIntegrationFactory(AdjustInstance adjust, Object config) {
+        this.adjust = adjust;
+        this.destinationConfig = createAdjustConfig(config);
+    }
 
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        JsonDeserializer<AdjustDestinationConfig> deserializer =
-                (json, typeOfT, context) -> {
-                    JsonObject jsonObject = json.getAsJsonObject();
-                    String appToken = Utils.getString(jsonObject.get("appToken").getAsString());
-                    JsonArray customMappings =
-                            (JsonArray) (jsonObject.get("customMappings"));
-                    Map<String, String> eventMap = Utils.getMappedRudderEvents(customMappings);
-                    double delay = jsonObject.get("delay").getAsDouble();
-                    return new AdjustDestinationConfig(appToken, eventMap, delay);
-                };
-        gsonBuilder.registerTypeAdapter(AdjustDestinationConfig.class, deserializer);
-        Gson customGson = gsonBuilder.create();
-        this.destinationConfig = customGson.fromJson(customGson.toJson(config), AdjustDestinationConfig.class);
+    private AdjustIntegrationFactory(Object config, RudderConfig rudderConfig) {
+        this(Adjust.getDefaultInstance(), config);
 
         AdjustConfig adjustConfig = new AdjustConfig(
                 RudderClient.getApplication(),
@@ -137,6 +133,24 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
     }
 
+    private AdjustDestinationConfig createAdjustConfig(Object config) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        JsonDeserializer<AdjustDestinationConfig> deserializer =
+                (json, typeOfT, context) -> {
+                    JsonObject jsonObject = json.getAsJsonObject();
+                    String appToken = Utils.getString(jsonObject.get("appToken").getAsString());
+                    JsonArray customMappings =
+                            (JsonArray) (jsonObject.get("customMappings"));
+                    Map<String, String> eventMap = Utils.getMappedRudderEvents(customMappings);
+                    double delay = jsonObject.get("delay").getAsDouble();
+                    return new AdjustDestinationConfig(appToken, eventMap, delay);
+                };
+        gsonBuilder.registerTypeAdapter(AdjustDestinationConfig.class, deserializer);
+        Gson customGson = gsonBuilder.create();
+        return customGson.fromJson(customGson.toJson(config), AdjustDestinationConfig.class);
+    }
+
+
     private void processRudderEvent(RudderMessage element) {
         if (element != null && element.getType() != null) {
             switch (element.getType()) {
@@ -151,14 +165,16 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                     AdjustEvent event = new AdjustEvent(eventToken);
                     Map<String, Object> eventProperties = element.getProperties();
                     if (eventProperties != null) {
-                        for (String key : eventProperties.keySet()) {
-                            event.addCallbackParameter(key, Utils.getString(eventProperties.get(key)));
-                        }
                         if (eventProperties.containsKey("revenue") && eventProperties.containsKey("currency")) {
                             event.setRevenue(
                                     Utils.getDouble(eventProperties.get("revenue"), 0.0),
                                     Utils.getString(eventProperties.get("currency"))
                             );
+                        }
+                        for (String key : eventProperties.keySet()) {
+                            if (!ECOMMERCE_RESERVED_PROPERTIES.contains(key)) {
+                                event.addCallbackParameter(key, Utils.getString(eventProperties.get(key)));
+                            }
                         }
                     }
                     Map<String, Object> userProperties = element.getUserProperties();

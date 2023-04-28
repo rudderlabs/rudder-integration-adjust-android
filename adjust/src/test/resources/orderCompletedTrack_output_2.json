@@ -1,0 +1,20 @@
+{
+  "identify": [
+    "82bb43ecdb842c72",
+    "Android userId"
+  ],
+  "events": [
+    {
+      "eventToken": "abc123",
+      "revenue": "10",
+      "currency": "USD",
+      "callbackParameters": {
+        "key-1": "value-1",
+        "key-4": "1.23456789E9",
+        "key-3": "true",
+        "key-2": "20.39",
+        "category": "test_category"
+      }
+    }
+  ]
+}
