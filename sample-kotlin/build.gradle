@@ -31,12 +31,11 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     // RudderStack Android SDK
-    implementation 'com.rudderstack.android.sdk:core:[1.0,2.0)'
+    implementation 'com.rudderstack.android.sdk:core:[1.26.0,2.0)'
     // Add the Google Play Services library, refer: https://help.adjust.com/en/article/get-started-android-sdk#add-google-play-services
-    implementation 'com.google.android.gms:play-services-ads-identifier:17.0.1'
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.2.0'
 
     implementation project(':adjust')
-    implementation 'com.google.code.gson:gson:2.8.6'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'

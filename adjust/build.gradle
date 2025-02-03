@@ -1,4 +1,3 @@
-
 apply plugin: 'com.android.library'
 
 android {
@@ -22,9 +21,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
     // RudderStack android SDK
-    implementation 'com.rudderstack.android.sdk:core:[1.0,2.0)'
+    implementation 'com.rudderstack.android.sdk:core:[1.26.0, 2.0)'
     // Adjust android SDK
-    implementation 'com.adjust.sdk:adjust-android:4.30.1'
+    implementation 'com.adjust.sdk:adjust-android:5.1.0'
 
     testImplementation 'com.android.support.test:rules:1.0.2'
     testImplementation 'com.android.support.test:runner:1.0.2'
