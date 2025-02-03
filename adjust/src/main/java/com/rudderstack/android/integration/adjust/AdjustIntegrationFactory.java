@@ -70,15 +70,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 }
             }
         }
-//        double delay = 0;
-//        if (destinationConfig != null && destinationConfig.containsKey("delay")) {
-//            delay = getDouble(destinationConfig.get("delay"));
-//            if (delay < 0) {
-//                delay = 0;
-//            } else if (delay > 10) {
-//                delay = 10;
-//            }
-//        }
 
         AdjustConfig adjustConfig = new AdjustConfig(
                 RudderClient.getApplication(),
@@ -86,9 +77,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? AdjustConfig.ENVIRONMENT_SANDBOX : AdjustConfig.ENVIRONMENT_PRODUCTION
         );
         adjustConfig.setLogLevel(rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? LogLevel.VERBOSE : LogLevel.ERROR);
-//        if (delay > 0) {
-//            adjustConfig.setDelayStart(delay);
-//        }
 
         adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
             @Override
@@ -103,12 +91,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 Log.d("AdjustFactory", "Event success callback called!");
                 Log.d("AdjustFactory", "Event success data: " + adjustEventSuccess.toString());
             }
-
-            // Removed
-//            public void onFinishedEventTrackingSucceeded(AdjustEventSuccess eventSuccessResponseData) {
-//                Log.d("AdjustFactory", "Event success callback called!");
-//                Log.d("AdjustFactory", "Event success data: " + eventSuccessResponseData.toString());
-//            }
         });
         adjustConfig.setOnEventTrackingFailedListener(new OnEventTrackingFailedListener() {
             @Override
@@ -158,9 +140,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
             }
         });
         adjustConfig.enableSendingInBackground();
-//        adjustConfig.setSendInBackground(true);
         Adjust.initSdk(adjustConfig);
-//        this.adjust.onCreate(adjustConfig);
         if (RudderClient.getApplication() != null) {
             RudderClient.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
                 @Override
