@@ -98,12 +98,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 Log.d("AdjustFactory", "Event failure callback called!");
                 Log.d("AdjustFactory", "Event failure data: " + adjustEventFailure.toString());
             }
-
-//            @Override
-//            public void onFinishedEventTrackingFailed(AdjustEventFailure eventFailureResponseData) {
-//                Log.d("AdjustFactory", "Event failure callback called!");
-//                Log.d("AdjustFactory", "Event failure data: " + eventFailureResponseData.toString());
-//            }
         });
         adjustConfig.setOnSessionTrackingSucceededListener(new OnSessionTrackingSucceededListener() {
             @Override
