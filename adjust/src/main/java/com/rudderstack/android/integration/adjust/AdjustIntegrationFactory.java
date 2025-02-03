@@ -18,7 +18,7 @@ import com.adjust.sdk.AdjustSessionFailure;
 import com.adjust.sdk.AdjustSessionSuccess;
 import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnAttributionChangedListener;
-import com.adjust.sdk.OnDeeplinkResponseListener;
+import com.adjust.sdk.OnDeferredDeeplinkResponseListener;
 import com.adjust.sdk.OnEventTrackingFailedListener;
 import com.adjust.sdk.OnEventTrackingSucceededListener;
 import com.adjust.sdk.OnSessionTrackingFailedListener;
@@ -70,25 +70,25 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 }
             }
         }
-        double delay = 0;
-        if (destinationConfig != null && destinationConfig.containsKey("delay")) {
-            delay = getDouble(destinationConfig.get("delay"));
-            if (delay < 0) {
-                delay = 0;
-            } else if (delay > 10) {
-                delay = 10;
-            }
-        }
+//        double delay = 0;
+//        if (destinationConfig != null && destinationConfig.containsKey("delay")) {
+//            delay = getDouble(destinationConfig.get("delay"));
+//            if (delay < 0) {
+//                delay = 0;
+//            } else if (delay > 10) {
+//                delay = 10;
+//            }
+//        }
 
         AdjustConfig adjustConfig = new AdjustConfig(
-                client.getApplication(),
+                RudderClient.getApplication(),
                 apiToken,
                 rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? AdjustConfig.ENVIRONMENT_SANDBOX : AdjustConfig.ENVIRONMENT_PRODUCTION
         );
         adjustConfig.setLogLevel(rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? LogLevel.VERBOSE : LogLevel.ERROR);
-        if (delay > 0) {
-            adjustConfig.setDelayStart(delay);
-        }
+//        if (delay > 0) {
+//            adjustConfig.setDelayStart(delay);
+//        }
 
         adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
             @Override
@@ -99,33 +99,57 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         });
         adjustConfig.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
             @Override
-            public void onFinishedEventTrackingSucceeded(AdjustEventSuccess eventSuccessResponseData) {
+            public void onEventTrackingSucceeded(AdjustEventSuccess adjustEventSuccess) {
                 Log.d("AdjustFactory", "Event success callback called!");
-                Log.d("AdjustFactory", "Event success data: " + eventSuccessResponseData.toString());
+                Log.d("AdjustFactory", "Event success data: " + adjustEventSuccess.toString());
             }
+
+            // Removed
+//            public void onFinishedEventTrackingSucceeded(AdjustEventSuccess eventSuccessResponseData) {
+//                Log.d("AdjustFactory", "Event success callback called!");
+//                Log.d("AdjustFactory", "Event success data: " + eventSuccessResponseData.toString());
+//            }
         });
         adjustConfig.setOnEventTrackingFailedListener(new OnEventTrackingFailedListener() {
             @Override
-            public void onFinishedEventTrackingFailed(AdjustEventFailure eventFailureResponseData) {
+            public void onEventTrackingFailed(AdjustEventFailure adjustEventFailure) {
                 Log.d("AdjustFactory", "Event failure callback called!");
-                Log.d("AdjustFactory", "Event failure data: " + eventFailureResponseData.toString());
+                Log.d("AdjustFactory", "Event failure data: " + adjustEventFailure.toString());
             }
+
+//            @Override
+//            public void onFinishedEventTrackingFailed(AdjustEventFailure eventFailureResponseData) {
+//                Log.d("AdjustFactory", "Event failure callback called!");
+//                Log.d("AdjustFactory", "Event failure data: " + eventFailureResponseData.toString());
+//            }
         });
         adjustConfig.setOnSessionTrackingSucceededListener(new OnSessionTrackingSucceededListener() {
             @Override
-            public void onFinishedSessionTrackingSucceeded(AdjustSessionSuccess sessionSuccessResponseData) {
+            public void onSessionTrackingSucceeded(AdjustSessionSuccess adjustSessionSuccess) {
                 Log.d("AdjustFactory", "Session success callback called!");
-                Log.d("AdjustFactory", "Session success data: " + sessionSuccessResponseData.toString());
+                Log.d("AdjustFactory", "Session success data: " + adjustSessionSuccess.toString());
             }
+
+//            @Override
+//            public void onFinishedSessionTrackingSucceeded(AdjustSessionSuccess sessionSuccessResponseData) {
+//                Log.d("AdjustFactory", "Session success callback called!");
+//                Log.d("AdjustFactory", "Session success data: " + sessionSuccessResponseData.toString());
+//            }
         });
         adjustConfig.setOnSessionTrackingFailedListener(new OnSessionTrackingFailedListener() {
             @Override
-            public void onFinishedSessionTrackingFailed(AdjustSessionFailure sessionFailureResponseData) {
+            public void onSessionTrackingFailed(AdjustSessionFailure adjustSessionFailure) {
                 Log.d("AdjustFactory", "Session failure callback called!");
-                Log.d("AdjustFactory", "Session failure data: " + sessionFailureResponseData.toString());
+                Log.d("AdjustFactory", "Session failure data: " + adjustSessionFailure.toString());
             }
+
+//            @Override
+//            public void onFinishedSessionTrackingFailed(AdjustSessionFailure sessionFailureResponseData) {
+//                Log.d("AdjustFactory", "Session failure callback called!");
+//                Log.d("AdjustFactory", "Session failure data: " + sessionFailureResponseData.toString());
+//            }
         });
-        adjustConfig.setOnDeeplinkResponseListener(new OnDeeplinkResponseListener() {
+        adjustConfig.setOnDeferredDeeplinkResponseListener(new OnDeferredDeeplinkResponseListener() {
             @Override
             public boolean launchReceivedDeeplink(Uri deeplink) {
                 Log.d("AdjustFactory", "Deferred deep link callback called!");
@@ -133,8 +157,10 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 return true;
             }
         });
-        adjustConfig.setSendInBackground(true);
-        this.adjust.onCreate(adjustConfig);
+        adjustConfig.enableSendingInBackground();
+//        adjustConfig.setSendInBackground(true);
+        Adjust.initSdk(adjustConfig);
+//        this.adjust.onCreate(adjustConfig);
         if (RudderClient.getApplication() != null) {
             RudderClient.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
                 @Override
@@ -225,15 +251,15 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
     }
 
     private void setSessionParams(RudderMessage element) {
-        Adjust.addSessionPartnerParameter("anonymousId", element.getAnonymousId());
+        Adjust.addGlobalPartnerParameter("anonymousId", element.getAnonymousId());
         if (!TextUtils.isEmpty(element.getUserId())) {
-            Adjust.addSessionPartnerParameter("userId", element.getUserId());
+            Adjust.addGlobalPartnerParameter("userId", element.getUserId());
         }
     }
 
     @Override
     public void reset() {
-        this.adjust.resetSessionPartnerParameters();
+        Adjust.removeGlobalPartnerParameters();
     }
 
     @Override
