@@ -111,12 +111,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 Log.d("AdjustFactory", "Session success callback called!");
                 Log.d("AdjustFactory", "Session success data: " + adjustSessionSuccess.toString());
             }
-
-//            @Override
-//            public void onFinishedSessionTrackingSucceeded(AdjustSessionSuccess sessionSuccessResponseData) {
-//                Log.d("AdjustFactory", "Session success callback called!");
-//                Log.d("AdjustFactory", "Session success data: " + sessionSuccessResponseData.toString());
-//            }
         });
         adjustConfig.setOnSessionTrackingFailedListener(new OnSessionTrackingFailedListener() {
             @Override
@@ -124,12 +118,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 Log.d("AdjustFactory", "Session failure callback called!");
                 Log.d("AdjustFactory", "Session failure data: " + adjustSessionFailure.toString());
             }
-
-//            @Override
-//            public void onFinishedSessionTrackingFailed(AdjustSessionFailure sessionFailureResponseData) {
-//                Log.d("AdjustFactory", "Session failure callback called!");
-//                Log.d("AdjustFactory", "Session failure data: " + sessionFailureResponseData.toString());
-//            }
         });
         adjustConfig.setOnDeferredDeeplinkResponseListener(new OnDeferredDeeplinkResponseListener() {
             @Override
