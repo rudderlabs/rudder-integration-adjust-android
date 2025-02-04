@@ -233,22 +233,4 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
     public AdjustInstance getUnderlyingInstance() {
         return adjust;
     }
-
-    static double getDouble(Object value) {
-        if (value == null) {
-            return 0;
-        }
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Double.parseDouble((String) value);
-            } catch (NumberFormatException ignored) {
-                RudderLogger.logDebug("Unable to convert the value: " + value +
-                        " to Double, using the defaultValue: " + (double) 0);
-            }
-        }
-        return 0;
-    }
 }
