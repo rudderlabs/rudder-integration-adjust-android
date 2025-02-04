@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         MainApplication.rudderClient.identify("RudderStack Android user id")
 
         MainApplication.rudderClient.track(
-            "Track event 1",
+            "Track event Android",
             RudderProperty()
                 .putValue("key1", "value1")
                 .putValue("key2", 123)
