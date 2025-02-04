@@ -219,9 +219,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 case MessageType.IDENTIFY:
                     this.setSessionParams(element);
                     break;
-                case MessageType.SCREEN:
-                    RudderLogger.logWarn("AdjustIntegrationFactory: MessageType is not supported");
-                    break;
                 default:
                     RudderLogger.logWarn("AdjustIntegrationFactory: MessageType is not specified");
                     break;
