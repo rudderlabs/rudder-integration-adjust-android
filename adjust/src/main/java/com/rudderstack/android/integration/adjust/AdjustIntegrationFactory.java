@@ -174,7 +174,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
             adjustConfig.setLogLevel(LogLevel.WARN);
         } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.ERROR) {
             adjustConfig.setLogLevel(LogLevel.ERROR);
-        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.NONE) {
+        } else {
             adjustConfig.setLogLevel(LogLevel.SUPPRESS);
         }
     }
