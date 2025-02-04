@@ -76,7 +76,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 apiToken,
                 rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? AdjustConfig.ENVIRONMENT_SANDBOX : AdjustConfig.ENVIRONMENT_PRODUCTION
         );
-        adjustConfig.setLogLevel(rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? LogLevel.VERBOSE : LogLevel.ERROR);
+        setLogLevel(rudderConfig, adjustConfig);
 
         adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
             @Override
@@ -160,6 +160,22 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
 
                 }
             });
+        }
+    }
+
+    private void setLogLevel(RudderConfig rudderConfig, AdjustConfig adjustConfig) {
+        if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.VERBOSE) {
+            adjustConfig.setLogLevel(LogLevel.VERBOSE);
+        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.DEBUG) {
+            adjustConfig.setLogLevel(LogLevel.DEBUG);
+        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.INFO) {
+            adjustConfig.setLogLevel(LogLevel.INFO);
+        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.WARN) {
+            adjustConfig.setLogLevel(LogLevel.WARN);
+        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.ERROR) {
+            adjustConfig.setLogLevel(LogLevel.ERROR);
+        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.NONE) {
+            adjustConfig.setLogLevel(LogLevel.SUPPRESS);
         }
     }
 
