@@ -18,10 +18,11 @@ class MainApplication : Application() {
         super.onCreate()
         rudderClient = RudderClient.getInstance(
             this,
-            WRITE_KEY,
+            BuildConfig.WRITE_KEY,
             RudderConfig.Builder()
-                .withDataPlaneUrl(DATA_PLANE_URL)
-                .withLogLevel(RudderLogger.RudderLogLevel.DEBUG)
+                .withDataPlaneUrl(BuildConfig.DATA_PLANE_URL)
+                .withLogLevel(RudderLogger.RudderLogLevel.VERBOSE)
+                .withTrackLifecycleEvents(false)
                 .withFactory(AdjustIntegrationFactory.FACTORY)
                 .build()
         )
