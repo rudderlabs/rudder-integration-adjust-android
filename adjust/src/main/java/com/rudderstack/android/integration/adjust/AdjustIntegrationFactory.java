@@ -18,7 +18,7 @@ import com.adjust.sdk.AdjustSessionFailure;
 import com.adjust.sdk.AdjustSessionSuccess;
 import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnAttributionChangedListener;
-import com.adjust.sdk.OnDeeplinkResponseListener;
+import com.adjust.sdk.OnDeferredDeeplinkResponseListener;
 import com.adjust.sdk.OnEventTrackingFailedListener;
 import com.adjust.sdk.OnEventTrackingSucceededListener;
 import com.adjust.sdk.OnSessionTrackingFailedListener;
@@ -70,25 +70,13 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 }
             }
         }
-        double delay = 0;
-        if (destinationConfig != null && destinationConfig.containsKey("delay")) {
-            delay = getDouble(destinationConfig.get("delay"));
-            if (delay < 0) {
-                delay = 0;
-            } else if (delay > 10) {
-                delay = 10;
-            }
-        }
 
         AdjustConfig adjustConfig = new AdjustConfig(
-                client.getApplication(),
+                RudderClient.getApplication(),
                 apiToken,
                 rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? AdjustConfig.ENVIRONMENT_SANDBOX : AdjustConfig.ENVIRONMENT_PRODUCTION
         );
-        adjustConfig.setLogLevel(rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? LogLevel.VERBOSE : LogLevel.ERROR);
-        if (delay > 0) {
-            adjustConfig.setDelayStart(delay);
-        }
+        setLogLevel(rudderConfig, adjustConfig);
 
         adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
             @Override
@@ -99,33 +87,33 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         });
         adjustConfig.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
             @Override
-            public void onFinishedEventTrackingSucceeded(AdjustEventSuccess eventSuccessResponseData) {
+            public void onEventTrackingSucceeded(AdjustEventSuccess adjustEventSuccess) {
                 Log.d("AdjustFactory", "Event success callback called!");
-                Log.d("AdjustFactory", "Event success data: " + eventSuccessResponseData.toString());
+                Log.d("AdjustFactory", "Event success data: " + adjustEventSuccess.toString());
             }
         });
         adjustConfig.setOnEventTrackingFailedListener(new OnEventTrackingFailedListener() {
             @Override
-            public void onFinishedEventTrackingFailed(AdjustEventFailure eventFailureResponseData) {
+            public void onEventTrackingFailed(AdjustEventFailure adjustEventFailure) {
                 Log.d("AdjustFactory", "Event failure callback called!");
-                Log.d("AdjustFactory", "Event failure data: " + eventFailureResponseData.toString());
+                Log.d("AdjustFactory", "Event failure data: " + adjustEventFailure.toString());
             }
         });
         adjustConfig.setOnSessionTrackingSucceededListener(new OnSessionTrackingSucceededListener() {
             @Override
-            public void onFinishedSessionTrackingSucceeded(AdjustSessionSuccess sessionSuccessResponseData) {
+            public void onSessionTrackingSucceeded(AdjustSessionSuccess adjustSessionSuccess) {
                 Log.d("AdjustFactory", "Session success callback called!");
-                Log.d("AdjustFactory", "Session success data: " + sessionSuccessResponseData.toString());
+                Log.d("AdjustFactory", "Session success data: " + adjustSessionSuccess.toString());
             }
         });
         adjustConfig.setOnSessionTrackingFailedListener(new OnSessionTrackingFailedListener() {
             @Override
-            public void onFinishedSessionTrackingFailed(AdjustSessionFailure sessionFailureResponseData) {
+            public void onSessionTrackingFailed(AdjustSessionFailure adjustSessionFailure) {
                 Log.d("AdjustFactory", "Session failure callback called!");
-                Log.d("AdjustFactory", "Session failure data: " + sessionFailureResponseData.toString());
+                Log.d("AdjustFactory", "Session failure data: " + adjustSessionFailure.toString());
             }
         });
-        adjustConfig.setOnDeeplinkResponseListener(new OnDeeplinkResponseListener() {
+        adjustConfig.setOnDeferredDeeplinkResponseListener(new OnDeferredDeeplinkResponseListener() {
             @Override
             public boolean launchReceivedDeeplink(Uri deeplink) {
                 Log.d("AdjustFactory", "Deferred deep link callback called!");
@@ -133,8 +121,8 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 return true;
             }
         });
-        adjustConfig.setSendInBackground(true);
-        this.adjust.onCreate(adjustConfig);
+        adjustConfig.enableSendingInBackground();
+        Adjust.initSdk(adjustConfig);
         if (RudderClient.getApplication() != null) {
             RudderClient.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
                 @Override
@@ -175,6 +163,22 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
     }
 
+    private void setLogLevel(RudderConfig rudderConfig, AdjustConfig adjustConfig) {
+        if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.VERBOSE) {
+            adjustConfig.setLogLevel(LogLevel.VERBOSE);
+        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.DEBUG) {
+            adjustConfig.setLogLevel(LogLevel.DEBUG);
+        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.INFO) {
+            adjustConfig.setLogLevel(LogLevel.INFO);
+        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.WARN) {
+            adjustConfig.setLogLevel(LogLevel.WARN);
+        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.ERROR) {
+            adjustConfig.setLogLevel(LogLevel.ERROR);
+        } else {
+            adjustConfig.setLogLevel(LogLevel.SUPPRESS);
+        }
+    }
+
     private void processRudderEvent(RudderMessage element) {
         if (element != null && element.getType() != null) {
             switch (element.getType()) {
@@ -186,6 +190,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                     }
                     // if event is not tracked using Adjust (eventToken from Adjust is null)
                     if (eventToken == null || eventToken.isEmpty()) {
+                        RudderLogger.logDebug("Dropping the track event: " + element.getEventName() +", since corresponding event token is not present.");
                         break;
                     }
 
@@ -214,9 +219,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 case MessageType.IDENTIFY:
                     this.setSessionParams(element);
                     break;
-                case MessageType.SCREEN:
-                    RudderLogger.logWarn("AdjustIntegrationFactory: MessageType is not supported");
-                    break;
                 default:
                     RudderLogger.logWarn("AdjustIntegrationFactory: MessageType is not specified");
                     break;
@@ -225,15 +227,15 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
     }
 
     private void setSessionParams(RudderMessage element) {
-        Adjust.addSessionPartnerParameter("anonymousId", element.getAnonymousId());
+        Adjust.addGlobalPartnerParameter("anonymousId", element.getAnonymousId());
         if (!TextUtils.isEmpty(element.getUserId())) {
-            Adjust.addSessionPartnerParameter("userId", element.getUserId());
+            Adjust.addGlobalPartnerParameter("userId", element.getUserId());
         }
     }
 
     @Override
     public void reset() {
-        this.adjust.resetSessionPartnerParameters();
+        Adjust.removeGlobalPartnerParameters();
     }
 
     @Override
@@ -244,23 +246,5 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
     @Override
     public AdjustInstance getUnderlyingInstance() {
         return adjust;
-    }
-
-    static double getDouble(Object value) {
-        if (value == null) {
-            return 0;
-        }
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Double.parseDouble((String) value);
-            } catch (NumberFormatException ignored) {
-                RudderLogger.logDebug("Unable to convert the value: " + value +
-                        " to Double, using the defaultValue: " + (double) 0);
-            }
-        }
-        return 0;
     }
 }

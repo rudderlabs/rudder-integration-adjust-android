@@ -19,7 +19,6 @@ jobs:
           outdated-dependency-names: "com.adjust.sdk:adjust-android"
           directory: "adjust/build.gradle"
           title: "fix: update Adjust SDK to the latest version"
-          assignee: "desusai7"
           labels: "outdatedDependency"
           color: "FBCA04"
         env:
