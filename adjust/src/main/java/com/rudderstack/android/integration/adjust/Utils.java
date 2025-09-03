@@ -18,11 +18,11 @@ public class Utils {
 
     /**
      * Sends an "Install Attributed" event to RudderStack when attribution data is received from Adjust.
-     * This follows the same pattern as the analytics-kotlin-adjust implementation.
      * 
      * @param client The RudderClient instance to send the event through
      * @param attribution The attribution data from Adjust (can be null for initial event)
      */
+    // todo: remove unnecessary logs in production release
     public static void sendInstallAttributedEvent(RudderClient client, AdjustAttribution attribution) {
         if (client == null) {
             RudderLogger.logWarn("AdjustUtils: Cannot send Install Attributed event - rudder client is null");
