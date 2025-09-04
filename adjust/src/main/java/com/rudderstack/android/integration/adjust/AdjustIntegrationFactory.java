@@ -76,16 +76,9 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? AdjustConfig.ENVIRONMENT_SANDBOX : AdjustConfig.ENVIRONMENT_PRODUCTION
         );
         Utils.setLogLevel(rudderConfig, adjustConfig);
-        adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
-            @Override
-            public void onAttributionChanged(AdjustAttribution attribution) {
-                RudderLogger.logInfo("AdjustFactory: Attribution callback triggered - sending Install Attributed event");
-                RudderLogger.logDebug("AdjustFactory: Attribution details: " + attribution.toString());
 
-                // Send Install Attributed event to RudderStack
-                Utils.sendInstallAttributedEvent(client, attribution);
-            }
-        });
+        setAttributionChangedListener(adjustConfig, client);
+
         adjustConfig.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
             @Override
             public void onEventTrackingSucceeded(AdjustEventSuccess adjustEventSuccess) {
@@ -209,6 +202,20 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                     break;
             }
         }
+    }
+
+    private void setAttributionChangedListener(AdjustConfig adjustConfig, RudderClient client) {
+        // TODO: Add boolean check to conditionally set Adjust for attribution tracking
+        adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
+            @Override
+            public void onAttributionChanged(AdjustAttribution attribution) {
+                RudderLogger.logInfo("AdjustFactory: Attribution callback triggered - sending Install Attributed event");
+                RudderLogger.logDebug("AdjustFactory: Attribution details: " + attribution.toString());
+
+                // Send Install Attributed event to RudderStack
+                Utils.sendInstallAttributedEvent(client, attribution);
+            }
+        });
     }
 
     private void setSessionParams(RudderMessage element) {
