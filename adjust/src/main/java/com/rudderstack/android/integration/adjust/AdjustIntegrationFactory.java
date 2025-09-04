@@ -77,6 +77,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         );
         Utils.setLogLevel(rudderConfig, adjustConfig);
 
+        // TODO: Add boolean check to conditionally set Adjust for attribution tracking
         setAttributionChangedListener(adjustConfig, client);
 
         adjustConfig.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
@@ -205,7 +206,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
     }
 
     private void setAttributionChangedListener(AdjustConfig adjustConfig, RudderClient client) {
-        // TODO: Add boolean check to conditionally set Adjust for attribution tracking
         adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
             @Override
             public void onAttributionChanged(AdjustAttribution attribution) {
