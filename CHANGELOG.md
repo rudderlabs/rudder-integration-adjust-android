@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 2.1.0-beta.1 (2025-09-03)
+
+### Features
+
+* **attribution**: add automatic install attribution events - integration now automatically sends "Install Attributed" events when Adjust SDK detects attribution information, including campaign data, tracker information, and network attribution details
+
 ## 2.0.0 (2025-02-18)
 
 
