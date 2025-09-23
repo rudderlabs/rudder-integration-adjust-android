@@ -77,8 +77,9 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         );
         Utils.setLogLevel(rudderConfig, adjustConfig);
 
-        // TODO: Add boolean check to conditionally set Adjust for attribution tracking
-        setAttributionChangedListener(adjustConfig, client);
+        if (destinationConfig != null && destinationConfig.containsKey("enableInstallAttributionTracking") && Boolean.TRUE.equals(destinationConfig.get("enableInstallAttributionTracking"))) {
+            setAttributionChangedListener(adjustConfig, client);
+        }
 
         adjustConfig.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
             @Override
