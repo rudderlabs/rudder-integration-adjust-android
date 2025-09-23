@@ -77,7 +77,7 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         );
         Utils.setLogLevel(rudderConfig, adjustConfig);
 
-        if (destinationConfig != null && destinationConfig.containsKey("enableInstallAttributionTracking")) {
+        if (destinationConfig != null && destinationConfig.containsKey("enableInstallAttributionTracking") && Boolean.TRUE.equals(destinationConfig.get("enableInstallAttributionTracking"))) {
             setAttributionChangedListener(adjustConfig, client);
         }
 
