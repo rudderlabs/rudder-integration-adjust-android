@@ -16,7 +16,6 @@ import com.adjust.sdk.AdjustEventSuccess;
 import com.adjust.sdk.AdjustInstance;
 import com.adjust.sdk.AdjustSessionFailure;
 import com.adjust.sdk.AdjustSessionSuccess;
-import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnAttributionChangedListener;
 import com.adjust.sdk.OnDeferredDeeplinkResponseListener;
 import com.adjust.sdk.OnEventTrackingFailedListener;
@@ -76,15 +75,12 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                 apiToken,
                 rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? AdjustConfig.ENVIRONMENT_SANDBOX : AdjustConfig.ENVIRONMENT_PRODUCTION
         );
-        setLogLevel(rudderConfig, adjustConfig);
+        Utils.setLogLevel(rudderConfig, adjustConfig);
 
-        adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
-            @Override
-            public void onAttributionChanged(AdjustAttribution attribution) {
-                Log.d("AdjustFactory", "Attribution callback called!");
-                Log.d("AdjustFactory", "Attribution: " + attribution.toString());
-            }
-        });
+        if (destinationConfig != null && destinationConfig.containsKey("enableInstallAttributionTracking") && Boolean.TRUE.equals(destinationConfig.get("enableInstallAttributionTracking"))) {
+            setAttributionChangedListener(adjustConfig, client);
+        }
+
         adjustConfig.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
             @Override
             public void onEventTrackingSucceeded(AdjustEventSuccess adjustEventSuccess) {
@@ -163,22 +159,6 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
         }
     }
 
-    private void setLogLevel(RudderConfig rudderConfig, AdjustConfig adjustConfig) {
-        if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.VERBOSE) {
-            adjustConfig.setLogLevel(LogLevel.VERBOSE);
-        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.DEBUG) {
-            adjustConfig.setLogLevel(LogLevel.DEBUG);
-        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.INFO) {
-            adjustConfig.setLogLevel(LogLevel.INFO);
-        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.WARN) {
-            adjustConfig.setLogLevel(LogLevel.WARN);
-        } else if (rudderConfig.getLogLevel() == RudderLogger.RudderLogLevel.ERROR) {
-            adjustConfig.setLogLevel(LogLevel.ERROR);
-        } else {
-            adjustConfig.setLogLevel(LogLevel.SUPPRESS);
-        }
-    }
-
     private void processRudderEvent(RudderMessage element) {
         if (element != null && element.getType() != null) {
             switch (element.getType()) {
@@ -224,6 +204,19 @@ public class AdjustIntegrationFactory extends RudderIntegration<AdjustInstance> 
                     break;
             }
         }
+    }
+
+    private void setAttributionChangedListener(AdjustConfig adjustConfig, RudderClient client) {
+        adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
+            @Override
+            public void onAttributionChanged(AdjustAttribution attribution) {
+                RudderLogger.logInfo("AdjustFactory: Attribution callback triggered - sending Install Attributed event");
+                RudderLogger.logDebug("AdjustFactory: Attribution details: " + attribution.toString());
+
+                // Send Install Attributed event to RudderStack
+                Utils.sendInstallAttributedEvent(client, attribution);
+            }
+        });
     }
 
     private void setSessionParams(RudderMessage element) {
